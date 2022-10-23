@@ -59,25 +59,23 @@ def test(BHNet, X, config, device):
             })
 
 
-def init_wandb():
-    wandb.init(entity="wandb", project="Binary-Hopfield-Network")
-    wandb.watch_called = False # Re-run the model without restarting the runtime, unnecessary after our next release
+wandb.init(entity="wandb", project="Binary-Hopfield-Network")
+wandb.watch_called = False # Re-run the model without restarting the runtime, unnecessary after our next release
 
-    # WandB – Config is a variable that holds and saves hyperparameters and inputs
-    config = wandb.config          # Initialize config
-    config.batch_size = 1          # input batch size for training (default: 64)
-    config.test_batch_size = 1    # input batch size for testing (default: 1000)
-    config.epochs = 50             # number of epochs to train (default: 10)
-    config.no_cuda = False         # disables CUDA training
-    config.seed = 42               # random seed (default: 42)
-    config.log_interval = 1     # how many batches to wait before logging training status
+# WandB – Config is a variable that holds and saves hyperparameters and inputs
+config = wandb.config          # Initialize config
+config.batch_size = 1          # input batch size for training (default: 64)
+config.test_batch_size = 1    # input batch size for testing (default: 1000)
+config.epochs = 50             # number of epochs to train (default: 10)
+config.no_cuda = False         # disables CUDA training
+config.seed = 42               # random seed (default: 42)
+config.log_interval = 1     # how many batches to wait before logging training status
 
-    return config
 
 
 def main():
     # WandB – Initialize a new run
-    config = init_wandb()
+    #config = init_wandb()
 
     use_cuda = not config.no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
@@ -89,12 +87,11 @@ def main():
     BHNet = BinaryHopfield(1, image_size ** 2).to(device)
     wandb.watch(BHNet, log="all")
 
-    X = next(train_loader).to(device)
+    X = next(iter(train_loader))[0].to(device)
     X = torch.where(X > 0.08, 1, -1)
 
     train(BHNet, X, device)
     test(BHNet, X, config, device)
-
 
 if __name__ == '__main__':
     main()

@@ -4,6 +4,7 @@ import torch.nn as nn
 class BinaryHopfield(nn.Module):
     #init ialize network variables and memory
     def __init__(self, num_minima, num_units):
+        super(BinaryHopfield, self).__init__()
 
         self.num_units = num_units
         self.num_minima = num_minima
@@ -13,16 +14,18 @@ class BinaryHopfield(nn.Module):
     def forward(self, X):
         #Start with batch size of 1
         n = X.size()[0]
-        X = X.reshape(-1, self.num_units, 1)
+        X_flat = X.reshape(self.num_units, 1).float()
 
-        if self.train():
+        self.units = X_flat
+
+        if self.training:
             #Need to look at how feed in batch of images to learn
-            self.weights = torch.sum(X * X.t(), dim=0, keepdim=True) / self.num_minima
-            self.weights.fill_diagonal(0)
+            #self.weights = torch.sum(self.units.matmul(self.units.T), dim=0, keepdim=True) / self.num_minima
+            self.weights = self.units.matmul(self.units.T) / self.num_minima
+            self.weights.fill_diagonal_(0)
         else:
-            pre_thresh = self.weights * X
-            output = torch.where(pre_thresh >= 0, 1, -1)
+            self.units = self.weights.matmul(self.units)
+            self.units = torch.where(self.units >= 0, 1, -1).float()
 
-            energy = -0.5 * self.units.T * self.weights * output
-            return energy, output
-
+            energy = -0.5 * self.units.T.matmul(self.weights.matmul(self.units))
+            return energy, self.units.reshape(X.size())
