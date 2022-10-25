@@ -59,7 +59,7 @@ def test(BHNet, X, config, device):
             })
 
 
-wandb.init(entity="wandb", project="Binary-Hopfield-Network")
+wandb.init(project="Binary-Hopfield-Network")
 wandb.watch_called = False # Re-run the model without restarting the runtime, unnecessary after our next release
 
 # WandB – Config is a variable that holds and saves hyperparameters and inputs
