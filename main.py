@@ -50,7 +50,7 @@ def test(BHNet, X, config, device):
         energy, fuzzy_X = BHNet(fuzzy_X)
 
         loss = F.mse_loss(fuzzy_X, X)
-        X_recalls.append()
+        #X_recalls.append()
 
         wandb.log({
             "Recall": wandb.Image(fuzzy_X[0]),
